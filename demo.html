@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>Greiner-Hormann clipping algorithm - demo</title>
+<script type='text/javascript' src='greinerclip.js'></script>
+</head>
+
+<body>
+<canvas id="canvas" width="800" height="800"/>
+<script type='text/javascript'>
+function drawPolygon(context, polygon, strokeStyle, fillStyle) {
+    context.strokeStyle = strokeStyle;
+    context.fillStyle = fillStyle;
+    context.beginPath();
+    context.moveTo(polygon[0][0],polygon[0][1]); //first vertex
+    for (var i = 1; i < polygon.length ; i++)
+        context.lineTo(polygon[i][0],polygon[i][1]);
+    context.lineTo(polygon[0][0],polygon[0][1]); //back to start
+    context.fill();
+    context.stroke();
+    context.closePath();
+}
+
+var context = document.getElementById('canvas').getContext('2d');
+var subjectPolygon = [[150, 130], [750, 250], [400, 300], [450, 650]],
+    clipPolygon = [[500, 450], [300, 550], [100, 400], [150, 350], [0, 200], [300, 230], [250, 100], [550, 0]];
+var clippedPolygon = clip_polygon(subjectPolygon, clipPolygon, 'difference');
+drawPolygon(context, clipPolygon, '#888','#88f');
+drawPolygon(context, subjectPolygon, '#888','#8f8');
+for (var k=0;k<clippedPolygon.length;k++) {
+    drawPolygon(context, clippedPolygon[k], '#000','#0ff');
+}
+</script>
+</body>
+</html>
