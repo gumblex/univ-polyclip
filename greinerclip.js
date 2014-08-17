@@ -383,11 +383,11 @@ function clip_polygon(subject, clipper, operation) {
     var Subject = new Polygon(), Clipper = new Polygon();
     var k = 0;
     for (k=0;k<subject.length;k++) {
-        Subject.add(new Vertex({x: subject[k][0], y: subject[k][1]}));
+        Subject.add(new Vertex(subject[k]));
     }
 
     for (k=0;k<clipper.length;k++) {
-        Clipper.add(new Vertex({x: clipper[k][0], y: clipper[k][1]}));
+        Clipper.add(new Vertex(clipper[k]));
     }
 
     var clipped;
