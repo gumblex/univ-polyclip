@@ -45,12 +45,13 @@ Vertex.prototype.isInside = function (poly) {
     var self = this;
     var winding_number = 0;
     var infinity = new Vertex({x: 1000000, y: self.y});
-    var polyiter = poly.iter(), q, kq = 0;
-    for (kq=0;kq<polyiter.length;kq++) {
-        q = polyiter[kq];
+    var q = poly.first;
+    while (true) {
         if (!q.intersect && !!intersect(self, infinity, q, poly.next(q.next))) {
             winding_number++;
         }
+        q = q.next;
+        if (q === poly.first) {break;}
     }
 
     return ((winding_number % 2) !== 0);
@@ -68,9 +69,7 @@ Vertex.prototype.setChecked = function () {
 
 function Polygon() {
     // Manages a circular doubly linked list of Vertex objects that represents a polygon.
-
-    var self = this;
-    self.first = null;
+    this.first = null;
 }
 
 Polygon.prototype.add = function (vertex) {
@@ -129,35 +128,41 @@ Polygon.prototype.nextPoly = function () {
 
 Polygon.prototype.first_intersect = function () {
     // Return the first unchecked intersection point in the polygon.
-    var selfiter = this.iter(), v, kv = 0;
-    for (kv=0;kv<selfiter.length;kv++) {
-        v = selfiter[kv];
+    var self = this;
+    var v = self.first;
+    while (true) {
         if (v.intersect && !v.checked) {
             break;
         }
+        v = v.next;
+        if (v === self.first) {break;}
     }
     return v;
 };
 
 Polygon.prototype.points = function () {
     // Return the polygon's points as a list of tuples (ordered coordinates pair).
+    var self = this;
     var p = [];
-    var selfiter = this.iter(), v, kv = 0;
-    for (kv=0;kv<selfiter.length;kv++) {
-        v = selfiter[kv];
-        p.push([v.x, v.y]);
+    var v = self.first;
+    while (true) {
+        p.push({x: v.x, y: v.y});
+        v = v.next;
+        if (v === self.first) {break;}
     }
     return p;
 };
 
 Polygon.prototype.unprocessed = function () {
     // Check if any unchecked intersections remain in the polygon.
-    var selfiter = this.iter(), v, kv = 0;
-    for (kv=0;kv<selfiter.length;kv++) {
-        v = selfiter[kv];
+    var self = this;
+    var v = self.first;
+    while (true) {
         if (v.intersect && !v.checked) {
             return true;
         }
+        v = v.next;
+        if (v === self.first) {break;}
     }
     return false;
 };
@@ -204,15 +209,15 @@ Polygon.prototype.clip = function (clip, s_entry, c_entry) {
     */
     var self = this;
     // phase one - find intersections
-    var selfiter = self.iter(), s, ks = 0;
-    var clipiter = clip.iter(), c, kc = 0;
+    var s = self.first;
+    var c = clip.first;
     var islist, iS, iC;
-    for (ks=0;ks<selfiter.length;ks++) {
-        s = selfiter[ks]; // for each vertex Si of subject polygon do
+    while (true) {
+        // for each vertex Si of subject polygon do
         if (!s.intersect) {
-            clipiter = clip.iter();
-            for (kc=0;kc<clipiter.length;kc++) {
-                c = clipiter[kc]; // for each vertex Cj of clip polygon do
+            c = clip.first;
+            while (true) {
+                // for each vertex Cj of clip polygon do
                 if (!c.intersect) {
                     islist = intersect(s, self.next(s.next), c, clip.next(c.next));
                     if (islist !== undefined) {
@@ -232,29 +237,35 @@ Polygon.prototype.clip = function (clip, s_entry, c_entry) {
                         clip.insert(iC, c, clip.next(c.next));
                     } // this simply means intersect() returned undefined
                 }
+                c = c.next;
+                if (c === clip.first) {break;}
             }
         }
+        s = s.next;
+        if (s === self.first) {break;}
     }
 
     // phase two - identify entry/exit points
     s_entry = (!s_entry !== !self.first.isInside(clip));
-    selfiter = self.iter();
-    for (ks=0;ks<selfiter.length;ks++) {
-        s = selfiter[ks];
+    s = self.first;
+    while (true) {
         if (s.intersect) {
             s.entry = s_entry;
             s_entry = !s_entry;
         }
+        s = s.next;
+        if (s === self.first) {break;}
     }
 
     c_entry = (!c_entry !== !clip.first.isInside(self));
-    clipiter = clip.iter();
-    for (kc=0;kc<clipiter.length;kc++) {
-        c = clipiter[kc];
+    c = clip.first;
+    while (true) {
         if (c.intersect) {
             c.entry = c_entry;
             c_entry = !c_entry;
         }
+        c = c.next;
+        if (c === clip.first) {break;}
     }
 
     // phase three - construct a list of clipped polygons
