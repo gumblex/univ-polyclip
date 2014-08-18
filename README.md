@@ -15,10 +15,13 @@ translated it from the Python version.
 Supported operations are: union, intersection, difference and reversed-diff.
 
 ```javascript
-var subjectPolygon = [[150, 130], [750, 250], [400, 300], [450, 650]],
-    clipPolygon = [[500, 450], [300, 550], [100, 400], [150, 350], [0, 200], [300, 230], [250, 100], [550, 0]];
+var subjectPolygon = [{x:150, y:130}, {x:750, y:250}, {x:400, y:300}, {x:450, y:650}]
+var clipPolygon = [{x:500, y:450}, {x:300, y:550}, {x:100, y:400}, {x:150, y:350}, {x:0, y:200}, {x:300, y:230}, {x:250, y:100}, {x:550, y:0}];
 var clippedPolygon = clip_polygon(subjectPolygon, clipPolygon, 'difference');
 // clippedPolygon is a list of polygons.
 ```
+
+If you don't like the point objects, use the helper function in the demo.html to convert arrays of xy to objects.
+Or you can also tweak the library code.
 
 See the demo.html for more info.
